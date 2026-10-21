@@ -12,6 +12,15 @@ EXTRA_CFLAGS += -Wno-cast-function-type
 #EXTRA_CFLAGS += -Wno-discarded-qualifiers
 EXTRA_CFLAGS += -Wno-uninitialized
 EXTRA_CFLAGS += -Wno-sometimes-uninitialized
+
+# Some distro kernels (e.g. Debian 6.12.107) backport the 6.13 change that
+# added a net_device argument to cfg80211_ops.set_monitor_channel, so detect
+# it from the kernel headers instead of relying on LINUX_VERSION_CODE.
+ifneq ($(srctree),)
+ifneq ($(shell grep -A1 'int[[:space:]]*(\*set_monitor_channel)' $(srctree)/include/net/cfg80211.h 2>/dev/null | grep -c 'struct net_device'),0)
+EXTRA_CFLAGS += -DRTW_SET_MONITOR_CHANNEL_HAS_NETDEV
+endif
+endif
 EXTRA_CFLAGS += -Wno-enum-conversion
 EXTRA_CFLAGS += -Wno-vla
 EXTRA_CFLAGS += -Wno-date-time
